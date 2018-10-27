@@ -1,14 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Vista;
 
 import Controlador.ControladorLogin;
 import Modelo.UsuarioDAO;
 
 //INICIO: IMPORTS PARA CONTROL DE VENTANAS
+import static Vista.JIFVerInventario.controlVentanaVerInventario;
 import static Vista.JIFCompras.controlVentanaCompras;
 import static Vista.JIFInventario.controlVentanaInventario;
 import static Vista.JIFHistorial.controlVentanaHistorial;
@@ -164,6 +160,7 @@ public class MDI extends javax.swing.JFrame {
         controlVentanaHistorial = false;
         controlVentanaInventario = false;
         controlVentanaCompras = false;
+        controlVentanaVerInventario = false;
         
         //VENTANAS SECCION MASTER
         controlVentanaSistema = false;

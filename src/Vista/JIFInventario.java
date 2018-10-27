@@ -1,16 +1,75 @@
 package Vista;
 
+import Modelo.CompraDAO;
+import Modelo.DetalleCompraDAO;
+import Modelo.InventarioDAO;
+import Modelo.MarcaDAO;
+import Modelo.PresentacionDAO;
+import Modelo.ProductoDAO;
+import Modelo.UnidadDAO;
+import static Vista.MDI.jDesktopPane1;
+import com.mxrck.autocompleter.AutoCompleterCallback;
+import com.mxrck.autocompleter.TextAutoCompleter;
+import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+
 /**
  *
  * @author alexc
  */
 public class JIFInventario extends javax.swing.JInternalFrame {
 
+    DefaultTableModel modelito;
     static public boolean controlVentanaInventario;
-            
+    private TextAutoCompleter acNombreProductos;
+    private TextAutoCompleter acNombreMarcas;
+    private TextAutoCompleter acNombrePresentaciones;
+    private TextAutoCompleter acNombreUnidad;
+    int backspace = 0;
+    int punto = 0;
+
     public JIFInventario() {
         initComponents();
         controlVentanaInventario = true;
+        configurarBuscadores();
+
+        lblIDCOMPRA.setHorizontalAlignment(SwingConstants.CENTER);
+        lblIDCOMPRA.setVerticalAlignment(SwingConstants.CENTER);
+        modelito = (DefaultTableModel) tablaProductosCargandose.getModel();
+
+        TableColumnModel columnasResoluciones = this.tablaProductosCargandose.getColumnModel();
+        this.tablaProductosCargandose.setShowGrid(true);
+        this.tablaProductosCargandose.setShowVerticalLines(true);
+        this.tablaProductosCargandose.setShowHorizontalLines(true);
+
+        //CENTRAR EL HEADER DE LAS COLUMNAS
+        DefaultTableCellRenderer headersProducts = (DefaultTableCellRenderer) this.tablaProductosCargandose.getTableHeader().getDefaultRenderer();
+        headersProducts.setHorizontalAlignment(0);
+        //CENTRAR LAS CELDAS
+        DefaultTableCellRenderer celdasProducts = new DefaultTableCellRenderer();
+        celdasProducts.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < 7; i++) {
+            this.tablaProductosCargandose.getColumnModel().getColumn(i).setCellRenderer(celdasProducts);
+        }
+
+        CompraDAO c = new CompraDAO();
+        int id_compraInt = c.obtenerIDcompraActiva();
+        String id_compra = String.valueOf(id_compraInt);
+        String monto_compra = String.valueOf(c.obtenerMontoCompra(id_compraInt));
+        if (id_compra.equals("0")) {
+            JOptionPane.showMessageDialog(null, "No hay una compra activa aun para registrarse");
+            lblIDCOMPRA.setText("????");
+            inhabilitarComponentes();
+        } else {
+            lblIDCOMPRA.setText(id_compra);
+            lblMontoCompra.setText(monto_compra);
+        }
+
     }
 
     /**
@@ -23,10 +82,43 @@ public class JIFInventario extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        btnRemoverFila = new javax.swing.JButton();
+        lblQ2 = new javax.swing.JLabel();
+        lblQ1 = new javax.swing.JLabel();
+        lblMontoCompra = new javax.swing.JLabel();
+        lblDineroCargado = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tablaProductosCargandose = new javax.swing.JTable();
+        lblIDCOMPRA = new javax.swing.JLabel();
+        btnBuscarProducto = new javax.swing.JButton();
+        txtPrecioCompra = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        txtCantidad = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        txtUnidad = new javax.swing.JTextField();
+        txtPresentacion = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        txtMarca = new javax.swing.JTextField();
+        txtNombreProducto = new javax.swing.JTextField();
+        lblIDproducto = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        btnVerInventarios = new javax.swing.JButton();
+        btnInventariar = new javax.swing.JButton();
+        btnCargarProducto = new javax.swing.JButton();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        lblEtiquetaLOTE = new javax.swing.JLabel();
+        lblFondo = new javax.swing.JLabel();
 
         setClosable(true);
         setIconifiable(true);
-        setTitle("Inventario");
+        setTitle("Registro de compra");
         setVisible(true);
         addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
             public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
@@ -46,16 +138,206 @@ public class JIFInventario extends javax.swing.JInternalFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 787, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 473, Short.MAX_VALUE)
-        );
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        btnRemoverFila.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnQuitar.png"))); // NOI18N
+        btnRemoverFila.setBorderPainted(false);
+        btnRemoverFila.setContentAreaFilled(false);
+        btnRemoverFila.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoverFilaActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnRemoverFila, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 220, 50, 30));
+
+        lblQ2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        lblQ2.setForeground(new java.awt.Color(255, 255, 255));
+        lblQ2.setText("Q.");
+        jPanel1.add(lblQ2, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 520, 30, -1));
+
+        lblQ1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        lblQ1.setForeground(new java.awt.Color(255, 255, 255));
+        lblQ1.setText("Q.");
+        jPanel1.add(lblQ1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 520, 30, -1));
+
+        lblMontoCompra.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        lblMontoCompra.setForeground(new java.awt.Color(255, 255, 255));
+        lblMontoCompra.setText("0.00");
+        jPanel1.add(lblMontoCompra, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 520, 200, -1));
+
+        lblDineroCargado.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        lblDineroCargado.setForeground(new java.awt.Color(255, 255, 255));
+        lblDineroCargado.setText("0.00");
+        jPanel1.add(lblDineroCargado, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 520, 180, -1));
+
+        jLabel12.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel12.setText("MONTO TOTAL DE COMPRA:");
+        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 500, 240, -1));
+
+        jLabel15.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel15.setText("TOTAL CARGADO:");
+        jPanel1.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 500, 150, -1));
+
+        tablaProductosCargandose.setBackground(new java.awt.Color(255, 255, 153));
+        tablaProductosCargandose.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "Nombre", "Marca", "Presentacion", "Unidad", "Precio compra", "Cantidad"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tablaProductosCargandose.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(tablaProductosCargandose);
+        if (tablaProductosCargandose.getColumnModel().getColumnCount() > 0) {
+            tablaProductosCargandose.getColumnModel().getColumn(0).setResizable(false);
+            tablaProductosCargandose.getColumnModel().getColumn(1).setResizable(false);
+            tablaProductosCargandose.getColumnModel().getColumn(2).setResizable(false);
+            tablaProductosCargandose.getColumnModel().getColumn(3).setResizable(false);
+            tablaProductosCargandose.getColumnModel().getColumn(4).setResizable(false);
+            tablaProductosCargandose.getColumnModel().getColumn(5).setResizable(false);
+            tablaProductosCargandose.getColumnModel().getColumn(6).setResizable(false);
+        }
+
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 740, 230));
+
+        lblIDCOMPRA.setFont(new java.awt.Font("Arial", 0, 48)); // NOI18N
+        lblIDCOMPRA.setText("1234");
+        jPanel1.add(lblIDCOMPRA, new org.netbeans.lib.awtextra.AbsoluteConstraints(1050, 60, 120, -1));
+
+        btnBuscarProducto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ButtonBuscar.png"))); // NOI18N
+        btnBuscarProducto.setBorderPainted(false);
+        btnBuscarProducto.setContentAreaFilled(false);
+        btnBuscarProducto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarProductoActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnBuscarProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 130, 140, 50));
+
+        txtPrecioCompra.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtPrecioCompraKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtPrecioCompraKeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtPrecioCompra, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 100, 140, -1));
+
+        jLabel11.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel11.setText("Precio de compra");
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 80, 140, -1));
+
+        txtCantidad.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtCantidadKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtCantidadKeyTyped(evt);
+            }
+        });
+        jPanel1.add(txtCantidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 100, 100, -1));
+
+        jLabel10.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel10.setText("Cantidad");
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 80, 80, -1));
+
+        jLabel9.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel9.setText("Unidad");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 80, 60, -1));
+        jPanel1.add(txtUnidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 100, 100, -1));
+        jPanel1.add(txtPresentacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 100, 110, -1));
+
+        jLabel8.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel8.setText("Presentacion");
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 80, 110, -1));
+
+        jLabel7.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel7.setText("Marca");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 80, 60, -1));
+
+        jLabel6.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel6.setText("Id encontrado: #");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 140, -1));
+
+        jLabel4.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel4.setText("Nombre producto");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 80, 140, -1));
+        jPanel1.add(txtMarca, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 100, 160, -1));
+        jPanel1.add(txtNombreProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 100, 150, -1));
+
+        lblIDproducto.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        lblIDproducto.setForeground(new java.awt.Color(255, 255, 255));
+        lblIDproducto.setText("No registrado");
+        jPanel1.add(lblIDproducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, 260, -1));
+
+        jLabel5.setFont(new java.awt.Font("Taurus", 0, 36)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel5.setText("Productos cargados al inventario");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 220, 570, -1));
+
+        btnVerInventarios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/BtnVerInventarios.png"))); // NOI18N
+        btnVerInventarios.setBorderPainted(false);
+        btnVerInventarios.setContentAreaFilled(false);
+        btnVerInventarios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVerInventariosActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnVerInventarios, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 310, 220, 240));
+
+        btnInventariar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnInventariar.png"))); // NOI18N
+        btnInventariar.setBorderPainted(false);
+        btnInventariar.setContentAreaFilled(false);
+        btnInventariar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnInventariarActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnInventariar, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 500, 180, 50));
+
+        btnCargarProducto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnCargar.png"))); // NOI18N
+        btnCargarProducto.setBorderPainted(false);
+        btnCargarProducto.setContentAreaFilled(false);
+        btnCargarProducto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCargarProductoActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnCargarProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 130, 140, 50));
+
+        jLabel13.setFont(new java.awt.Font("Taurus", 0, 48)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel13.setText("REGISTRO DE COMPRA");
+        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 520, -1));
+
+        jLabel14.setFont(new java.awt.Font("Taurus", 0, 24)); // NOI18N
+        jLabel14.setText("#COMPRA");
+        jPanel1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(1050, 20, 120, -1));
+
+        lblEtiquetaLOTE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/etiquetaLote.png"))); // NOI18N
+        jPanel1.add(lblEtiquetaLOTE, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 0, 200, 200));
+
+        lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/JFIHistorial_fondoHistorial.png"))); // NOI18N
+        jPanel1.add(lblFondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1190, 570));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -71,12 +353,307 @@ public class JIFInventario extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void inhabilitarComponentes(){
+        txtCantidad.setEnabled(false);
+        txtMarca.setEnabled(false);
+        txtNombreProducto.setEnabled(false);
+        txtPrecioCompra.setEnabled(false);
+        txtPresentacion.setEnabled(false);
+        txtUnidad.setEnabled(false);
+        btnBuscarProducto.setEnabled(false);
+        btnCargarProducto.setEnabled(false);
+        btnInventariar.setEnabled(false);
+        btnRemoverFila.setEnabled(false);
+        tablaProductosCargandose.setEnabled(false);
+    }
+    
     private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
         controlVentanaInventario = false;
     }//GEN-LAST:event_formInternalFrameClosing
 
+    private void btnBuscarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarProductoActionPerformed
+        if ((!txtNombreProducto.getText().equals("")) && (!txtMarca.getText().equals("")) && (!txtPresentacion.getText().equals("")) && (!txtUnidad.getText().equals(""))) {
+
+            int idMarca, idPresentacion, idUnidad;
+            String idProductoHAYADO;
+
+            MarcaDAO mr = new MarcaDAO();
+            PresentacionDAO pr = new PresentacionDAO();
+            UnidadDAO u = new UnidadDAO();
+
+            idMarca = mr.mostrarIDdeUnaMarca(txtMarca.getText());
+            idPresentacion = pr.mostrarIDdeUnaPresentacion(txtPresentacion.getText());
+            idUnidad = u.mostrarIDdeUnaUnidad(txtUnidad.getText());
+
+            ProductoDAO pd = new ProductoDAO();
+            idProductoHAYADO = String.valueOf(pd.mostrarIDdeUnProducto(idUnidad, idPresentacion, idMarca, txtNombreProducto.getText()));
+            if (idProductoHAYADO.equals("0")) {
+
+                if (JOptionPane.showConfirmDialog(null, "No se ha encontrado el producto en catalogo, desea agregarlo?", "WARNING",
+                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+
+                    if (String.valueOf(idMarca).equals("0")) {
+                        mr.insertarMarca(txtMarca.getText());
+                        idMarca = mr.mostrarIDdeUnaMarca(txtMarca.getText());
+                    }
+                    if (String.valueOf(idPresentacion).equals("0")) {
+                        pr.insertarPresentacion(txtPresentacion.getText());
+                        idPresentacion = pr.mostrarIDdeUnaPresentacion(txtPresentacion.getText());
+                    }
+                    if (String.valueOf(idUnidad).equals("0")) {
+                        u.insertarUnidad(txtUnidad.getText());
+                        idUnidad = u.mostrarIDdeUnaUnidad(txtUnidad.getText());
+                    }
+
+                    pd.insertarProducto(idUnidad, idPresentacion, idMarca, txtNombreProducto.getText());
+                    lblIDproducto.setText(String.valueOf(pd.mostrarIDdeUnProducto(idUnidad, idPresentacion, idMarca, txtNombreProducto.getText())));
+                    configurarBuscadores();
+                } else {
+                    lblIDproducto.setText("NO ENCONTRADO");
+                }
+
+            } else {
+                lblIDproducto.setText(idProductoHAYADO);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Los parametros de busqueda estan vacíos");
+        }
+    }//GEN-LAST:event_btnBuscarProductoActionPerformed
+
+    private void btnCargarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarProductoActionPerformed
+        if ((!txtNombreProducto.getText().equals("")) && (!txtMarca.getText().equals("")) && (!txtPresentacion.getText().equals("")) && (!txtUnidad.getText().equals("")) && (!txtCantidad.getText().equals("")) && (!txtPrecioCompra.getText().equals(""))) {
+
+            int idMarca, idPresentacion, idUnidad;
+            double sumemos;
+            String idProductoHAYADO;
+
+            MarcaDAO mr = new MarcaDAO();
+            PresentacionDAO pr = new PresentacionDAO();
+            UnidadDAO u = new UnidadDAO();
+
+            idMarca = mr.mostrarIDdeUnaMarca(txtMarca.getText());
+            idPresentacion = pr.mostrarIDdeUnaPresentacion(txtPresentacion.getText());
+            idUnidad = u.mostrarIDdeUnaUnidad(txtUnidad.getText());
+
+            ProductoDAO pd = new ProductoDAO();
+            idProductoHAYADO = String.valueOf(pd.mostrarIDdeUnProducto(idUnidad, idPresentacion, idMarca, txtNombreProducto.getText()));
+
+            if (idProductoHAYADO.equals("0")) {
+                JOptionPane.showMessageDialog(null, "El producto que se desea cargar no se encuentra registrado en el catalogo.\n Porfavor revisar informacion o si lo que se desea es ingresar un nuevo producto al catalogo: \n PULSE al boton BUSCAR");
+            } else {
+                modelito.addRow(new Object[]{idProductoHAYADO, txtNombreProducto.getText(), txtMarca.getText(), txtPresentacion.getText(), txtUnidad.getText(), txtPrecioCompra.getText(), txtCantidad.getText()});
+                sumemos = Double.parseDouble(txtCantidad.getText()) * Double.parseDouble(txtPrecioCompra.getText());
+                sumemos = sumemos + Double.parseDouble(lblDineroCargado.getText());
+                lblDineroCargado.setText(String.valueOf(sumemos));
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Los parametros para realizar la carga estan vacíos");
+        }
+    }//GEN-LAST:event_btnCargarProductoActionPerformed
+
+    private void txtCantidadKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCantidadKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            backspace = 1;
+            return;
+        }
+    }//GEN-LAST:event_txtCantidadKeyPressed
+
+    private void txtCantidadKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCantidadKeyTyped
+        if (backspace == 1) {
+            backspace = 0;
+            return;
+        }
+        char validar = evt.getKeyChar();
+        if (!Character.isDigit(validar)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Ingresar solo numeros");
+        }
+    }//GEN-LAST:event_txtCantidadKeyTyped
+
+    private void txtPrecioCompraKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPrecioCompraKeyPressed
+        if ((evt.getKeyCode() == KeyEvent.VK_PERIOD) || (evt.getKeyCode() == KeyEvent.VK_DECIMAL)) {
+            punto = 1;
+            return;
+        }
+
+        if (evt.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            backspace = 1;
+            return;
+        }
+    }//GEN-LAST:event_txtPrecioCompraKeyPressed
+
+    private void txtPrecioCompraKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPrecioCompraKeyTyped
+        if (punto == 1) {
+            punto = 0;
+            return;
+        }
+
+        if (backspace == 1) {
+            backspace = 0;
+            return;
+        }
+
+        char validar = evt.getKeyChar();
+        if (!Character.isDigit(validar)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Ingresar solo numeros");
+        }
+    }//GEN-LAST:event_txtPrecioCompraKeyTyped
+
+    private void btnInventariarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInventariarActionPerformed
+        if (!lblDineroCargado.getText().equals(lblMontoCompra.getText())) {
+            JOptionPane.showMessageDialog(null, "Los totales no cuadran, porfavor revisar los productos cargados");
+            return;
+        } else {
+            int conteoFilas = modelito.getRowCount();
+            int id_compra = Integer.parseInt(lblIDCOMPRA.getText());
+            int id_producto;
+            int cantidad_comprada;
+            double precio_compra;
+            DetalleCompraDAO dc = new DetalleCompraDAO();
+            InventarioDAO in = new InventarioDAO();
+            System.out.println("filas: " + conteoFilas);
+
+            for (int i = 0; i < conteoFilas; i++) {
+                id_producto = Integer.parseInt(modelito.getValueAt(i, 0).toString());
+                cantidad_comprada = Integer.parseInt(modelito.getValueAt(i, 6).toString());
+                precio_compra = Double.parseDouble(modelito.getValueAt(i, 5).toString());
+                dc.insertarDetalleCompra(id_producto, id_compra, precio_compra, cantidad_comprada);
+            }
+
+            for (int i = 0; i < conteoFilas; i++) {
+                id_producto = Integer.parseInt(modelito.getValueAt(i, 0).toString());
+                cantidad_comprada = Integer.parseInt(modelito.getValueAt(i, 6).toString());
+                in.insertarActualizarEsxistencias(id_producto, cantidad_comprada);
+            }
+
+            int a = modelito.getRowCount() - 1;
+            for (int i = a; i >= 0; i--) {
+                modelito.removeRow(i);
+            }
+            lblDineroCargado.setText("0.00");
+            lblMontoCompra.setText("0.00");
+            
+            CompraDAO c = new CompraDAO(); 
+            c.colocarCompraComoRegistrada(id_compra);
+            JOptionPane.showMessageDialog(null, "¡Mercadería inventariada con éxito!");
+            inhabilitarComponentes();
+
+        }
+    }//GEN-LAST:event_btnInventariarActionPerformed
+
+    private void btnRemoverFilaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverFilaActionPerformed
+        double resta = 0;
+        String precio = "";
+        String cantidad = "";
+        int filaSeleccionada = 0;
+
+        try {
+            filaSeleccionada = tablaProductosCargandose.getSelectedRow();
+            precio = (tablaProductosCargandose.getModel().getValueAt(filaSeleccionada, 5).toString());
+            cantidad = (tablaProductosCargandose.getModel().getValueAt(filaSeleccionada, 6).toString());
+            resta = (Double.parseDouble(lblDineroCargado.getText())) - (Double.parseDouble(precio) * Double.parseDouble(cantidad));
+            lblDineroCargado.setText(String.valueOf(resta));
+            modelito.removeRow(filaSeleccionada);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "No hay filas seleccionadas");
+        }
+
+
+    }//GEN-LAST:event_btnRemoverFilaActionPerformed
+
+    private void btnVerInventariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerInventariosActionPerformed
+        if (JIFVerInventario.controlVentanaVerInventario) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
+            return;
+        }
+
+        JIFVerInventario vistaVI = new JIFVerInventario();
+        vistaVI.setLocation(((jDesktopPane1.getSize()).width - (vistaVI.getSize()).width) / 2, ((jDesktopPane1.getSize()).height - (vistaVI.getSize()).height) / 2);
+        jDesktopPane1.add(vistaVI);
+        vistaVI.toFront();
+    }//GEN-LAST:event_btnVerInventariosActionPerformed
+
+    private void configurarBuscadores() {
+
+        /*CONFIGURACIONES PARA LA LISTA/BUSCADOR* NOMBRE DE PREODUCTOS*/
+        acNombreProductos = new TextAutoCompleter(txtNombreProducto, new AutoCompleterCallback() {
+            @Override
+            public void callback(Object selectedItem) {
+            }
+        });
+
+        ProductoDAO p = new ProductoDAO();
+        p.mostrarNombreProductos(acNombreProductos);
+
+        /*CONFIGURACIONES PARA LA LISTA/BUSCADOR* NOMBRE DE MARCAS*/
+        acNombreMarcas = new TextAutoCompleter(txtMarca, new AutoCompleterCallback() {
+            @Override
+            public void callback(Object selectedItem) {
+            }
+        });
+
+        MarcaDAO m = new MarcaDAO();
+        m.mostrarNombreMarcas(acNombreMarcas);
+
+        /*CONFIGURACIONES PARA LA LISTA/BUSCADOR* NOMBRE DE PRESENTACIONES (ml,gr,onz)*/
+        acNombrePresentaciones = new TextAutoCompleter(txtPresentacion, new AutoCompleterCallback() {
+            @Override
+            public void callback(Object selectedItem) {
+            }
+        });
+
+        PresentacionDAO pre = new PresentacionDAO();
+        pre.mostrarNombrePresentaciones(acNombrePresentaciones);
+
+        /*CONFIGURACIONES PARA LA LISTA/BUSCADOR* NOMBRE DE UNIDAD*/
+        acNombreUnidad = new TextAutoCompleter(txtUnidad, new AutoCompleterCallback() {
+            @Override
+            public void callback(Object selectedItem) {
+            }
+        });
+
+        UnidadDAO u = new UnidadDAO();
+        u.mostrarNombreUnidades(acNombreUnidad);
+
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBuscarProducto;
+    private javax.swing.JButton btnCargarProducto;
+    private javax.swing.JButton btnInventariar;
+    private javax.swing.JButton btnRemoverFila;
+    private javax.swing.JButton btnVerInventarios;
+    public javax.swing.JLabel jLabel10;
+    public javax.swing.JLabel jLabel11;
+    public javax.swing.JLabel jLabel12;
+    public javax.swing.JLabel jLabel13;
+    public javax.swing.JLabel jLabel14;
+    public javax.swing.JLabel jLabel15;
+    public javax.swing.JLabel jLabel4;
+    public javax.swing.JLabel jLabel5;
+    public javax.swing.JLabel jLabel6;
+    public javax.swing.JLabel jLabel7;
+    public javax.swing.JLabel jLabel8;
+    public javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane2;
+    public javax.swing.JLabel lblDineroCargado;
+    private javax.swing.JLabel lblEtiquetaLOTE;
+    private javax.swing.JLabel lblFondo;
+    public javax.swing.JLabel lblIDCOMPRA;
+    public javax.swing.JLabel lblIDproducto;
+    public javax.swing.JLabel lblMontoCompra;
+    public javax.swing.JLabel lblQ1;
+    public javax.swing.JLabel lblQ2;
+    private javax.swing.JTable tablaProductosCargandose;
+    private javax.swing.JTextField txtCantidad;
+    private javax.swing.JTextField txtMarca;
+    private javax.swing.JTextField txtNombreProducto;
+    private javax.swing.JTextField txtPrecioCompra;
+    private javax.swing.JTextField txtPresentacion;
+    private javax.swing.JTextField txtUnidad;
     // End of variables declaration//GEN-END:variables
 }

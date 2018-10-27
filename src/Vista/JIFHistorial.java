@@ -204,6 +204,7 @@ public class JIFHistorial extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
+        tablaTransacciones.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tablaTransacciones);
         if (tablaTransacciones.getColumnModel().getColumnCount() > 0) {
             tablaTransacciones.getColumnModel().getColumn(0).setResizable(false);
@@ -234,6 +235,7 @@ public class JIFHistorial extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
+        tablaResoluciones.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(tablaResoluciones);
         if (tablaResoluciones.getColumnModel().getColumnCount() > 0) {
             tablaResoluciones.getColumnModel().getColumn(0).setResizable(false);

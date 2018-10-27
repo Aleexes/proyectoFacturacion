@@ -1,8 +1,11 @@
 package Vista;
 
+import Controlador.ControladorCompra;
+import Modelo.CompraDAO;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -17,8 +20,9 @@ public class JIFCompras extends javax.swing.JInternalFrame {
     int backspace = 0;
     int punto = 0;
     static public boolean controlVentanaCompras;
+    String compraPendiente = null;
 
-    public JIFCompras(){
+    public JIFCompras() {
         initComponents();
         controlVentanaCompras = true;
         txtNumCompra.setHorizontalAlignment(SwingConstants.CENTER);
@@ -26,19 +30,22 @@ public class JIFCompras extends javax.swing.JInternalFrame {
         lblRestriccionCompraNoRegistrada2.setVisible(false);
         txtLACOMPRA.setVisible(false);
         txtNumCompra.setVisible(false);
-        
-        //compraSinRegistrarON();
-        
+
+        CompraDAO c = new CompraDAO();
+        compraPendiente = c.verSiHayComprasPendientesdeRegistrar();
+        if (compraPendiente != null) {
+            txtNumCompra.setText(compraPendiente);
+            compraSinRegistrarON();
+        }
 
     }
 
-    private void compraSinRegistrarON(){
+    private void compraSinRegistrarON() {
         lblRestriccionCompraNoRegistrada1.setVisible(true);
         lblRestriccionCompraNoRegistrada2.setVisible(true);
         txtLACOMPRA.setVisible(true);
         txtNumCompra.setVisible(true);
-        ImageIcon imageicon = new ImageIcon(this.getClass().getResource("/imagenes/ButtonSaveBlock.png"));
-        btnRegistrarCompra.setIcon(imageicon); 
+        btnRegistrarCompra.setEnabled(false);
     }
 
     @SuppressWarnings("unchecked")
@@ -179,7 +186,7 @@ public class JIFCompras extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_formInternalFrameClosing
 
     private void btnRegistrarCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarCompraActionPerformed
-        
+
         if (txtNumeroFactura.getText().equals("")) {
             getToolkit().beep();
             JOptionPane.showMessageDialog(null, "Indicar el numero de factura");
@@ -192,28 +199,49 @@ public class JIFCompras extends javax.swing.JInternalFrame {
             return;
         }
 
-        java.util.Date fechaAutorizacion = calendarioFechaRealizacion.getDate();
-        java.sql.Date sqlFechaAutorizacion = new java.sql.Date(fechaAutorizacion.getTime());
-        
-        /*ControladorModeloResolucion cMR = new ControladorModeloResolucion(txtNumeroResolucion.getText(), txtNumeroSerie.getText(), (String) tipoDocumento.getSelectedItem(),
-                Integer.parseInt(txtNumeroInicial.getText()), Integer.parseInt(txtNumeroFinal.getText()), sqlFechaAutorizacion, sqlFechaActual);
-        cMR.crearModeloResolucion(cMR);*/
+        java.util.Date fechaActual = new java.util.Date();
+        SimpleDateFormat formateador = new SimpleDateFormat("dd-MM-yyyy");
+        formateador.format(fechaActual);
+        java.sql.Date sqlFechaActual = new java.sql.Date(fechaActual.getTime());
 
-        
+        java.util.Date fechaCompra = calendarioFechaRealizacion.getDate();
+        java.sql.Date sqlFechaCompra = new java.sql.Date(fechaCompra.getTime());
+
+        if (sqlFechaCompra.equals("")) {
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "Especificar la fecha de compra");
+            return;
+        } else if (sqlFechaCompra.compareTo(sqlFechaActual) > 0) {
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "La fecha de compra no es válida");
+            return;
+        }
+
+        ControladorCompra cCom = new ControladorCompra(Integer.parseInt(txtNumeroFactura.getText()), Double.parseDouble(txtMontoTotal.getText()), sqlFechaCompra);
+        cCom.crearCompra(cCom);
+
+        CompraDAO c = new CompraDAO();
+        compraPendiente = c.verSiHayComprasPendientesdeRegistrar();
+        if (compraPendiente != null) {
+            txtNumCompra.setText(compraPendiente);
+            compraSinRegistrarON();
+        }
+
+
     }//GEN-LAST:event_btnRegistrarCompraActionPerformed
 
     private void txtMontoTotalKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMontoTotalKeyTyped
-        
+
         if (punto == 1) {
             punto = 0;
             return;
         }
-        
+
         if (backspace == 1) {
             backspace = 0;
             return;
         }
-        
+
         char validar = evt.getKeyChar();
         if (!Character.isDigit(validar)) {
             getToolkit().beep();
@@ -223,12 +251,12 @@ public class JIFCompras extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_txtMontoTotalKeyTyped
 
     private void txtMontoTotalKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMontoTotalKeyPressed
-        
-        if((evt.getKeyCode() == KeyEvent.VK_PERIOD) || (evt.getKeyCode() == KeyEvent.VK_DECIMAL)){
+
+        if ((evt.getKeyCode() == KeyEvent.VK_PERIOD) || (evt.getKeyCode() == KeyEvent.VK_DECIMAL)) {
             punto = 1;
             return;
         }
-              
+
         if (evt.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
             backspace = 1;
             return;
