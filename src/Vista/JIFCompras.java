@@ -2,6 +2,7 @@ package Vista;
 
 import Controlador.ControladorCompra;
 import Modelo.CompraDAO;
+import static Vista.MDI.jDesktopPane1;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -66,6 +67,7 @@ public class JIFCompras extends javax.swing.JInternalFrame {
         txtNumCompra = new javax.swing.JLabel();
         lblRestriccionCompraNoRegistrada1 = new javax.swing.JLabel();
         lblRestriccionCompraNoRegistrada2 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         lblFondo = new javax.swing.JLabel();
 
         setClosable(true);
@@ -95,7 +97,7 @@ public class JIFCompras extends javax.swing.JInternalFrame {
         lblTitulo.setFont(new java.awt.Font("Taurus", 0, 48)); // NOI18N
         lblTitulo.setForeground(new java.awt.Color(255, 255, 51));
         lblTitulo.setText("Registro de Compra");
-        jPanel1.add(lblTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, 440, -1));
+        jPanel1.add(lblTitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 440, -1));
         jPanel1.add(txtNumeroFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 180, 30));
 
         txtMontoTotal.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -163,6 +165,16 @@ public class JIFCompras extends javax.swing.JInternalFrame {
         lblRestriccionCompraNoRegistrada2.setForeground(new java.awt.Color(255, 102, 102));
         lblRestriccionCompraNoRegistrada2.setText("¡Porfavor prodecer a ingresarla al inventario antes de registrar una nueva compra!");
         jPanel1.add(lblRestriccionCompraNoRegistrada2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 390, 570, 20));
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnHistorialDetalleCompras.png"))); // NOI18N
+        jButton1.setBorderPainted(false);
+        jButton1.setContentAreaFilled(false);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 10, 60, 50));
 
         lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/JFICompras_fondo.png"))); // NOI18N
         jPanel1.add(lblFondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 590, 430));
@@ -263,10 +275,23 @@ public class JIFCompras extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_txtMontoTotalKeyPressed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        
+        if (JIFComprasHistoriales.controlVentanaComprasHistoriales) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
+            return;
+        }
+        
+        JIFComprasHistoriales vistaCH = new JIFComprasHistoriales();
+        vistaCH.setLocation(((jDesktopPane1.getSize()).width - (vistaCH.getSize()).width) / 2, ((jDesktopPane1.getSize()).height - (vistaCH.getSize()).height) / 2);
+        jDesktopPane1.add(vistaCH);
+        vistaCH.toFront();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRegistrarCompra;
     private com.toedter.calendar.JCalendar calendarioFechaRealizacion;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

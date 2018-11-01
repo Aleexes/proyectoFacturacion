@@ -48,4 +48,33 @@ public class TransaccionDAO {
         }
     }
     
+    public int mostrarNumeroUltimaFacturaIngresada() {
+
+        Conexion con = new Conexion();
+        Connection accesoDB = con.getConexion();
+        int J;
+
+        if (accesoDB == null) {
+            JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+            return 0;
+        }
+
+        try {
+            int i = 0;
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT TRANSACCION_NUMERO FROM TRANSACCION ORDER BY TRANSACCION_NUMERO DESC limit 1");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                J = rs.getInt("TRANSACCION_NUMERO");
+                return J;
+            }
+            return 0;
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return 0;
+        }
+    }
+    
+    
 }

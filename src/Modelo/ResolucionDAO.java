@@ -150,5 +150,50 @@ public class ResolucionDAO {
             return null;
         }
     }
+    
+    public ArrayList<String> mostrarResolucionActivaFACTURA() {
 
+        ArrayList<String> array = new ArrayList<String>();
+
+        try {
+            Connection accesoDB = con.getConexion();
+            if (accesoDB == null) {
+                JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+                return null;
+            }
+
+            try {
+
+                PreparedStatement ps = accesoDB.prepareStatement("select RESOLUCION_NUMERO,RESOLUCION_TIPODOC,RESOLUCION_NUMEROINICIAL,RESOLUCION_NUMEROFINAL,RESOLUCION_SERIE,RESOLUCION_FECHAAUTORIZACION,RESOLUCION_FECHAINGRESO,RESOLUCION_ACTIVA from resolucion where RESOLUCION_TIPODOC='Factura' AND RESOLUCION_ACTIVA=1");
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    array.add(rs.getString("RESOLUCION_NUMERO"));
+                    array.add(rs.getString("RESOLUCION_TIPODOC"));
+                    array.add(String.valueOf(rs.getInt("RESOLUCION_NUMEROINICIAL")));
+                    array.add(String.valueOf(rs.getInt("RESOLUCION_NUMEROFINAL")));
+                    array.add(rs.getString("RESOLUCION_SERIE"));
+                    array.add(String.valueOf(rs.getDate("RESOLUCION_FECHAAUTORIZACION")));
+                    array.add(String.valueOf(rs.getDate("RESOLUCION_FECHAINGRESO")));
+                }
+
+            } catch (MySQLIntegrityConstraintViolationException e) {
+                JOptionPane.showMessageDialog(null, "No hay datos de algun negocio en la base de datos");
+                return null;
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "No hay datos de algun negocio en la base de datos");
+                return null;
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+
+        return array;
+    }
+    
+    
+    
 }

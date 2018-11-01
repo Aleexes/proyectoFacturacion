@@ -43,7 +43,7 @@ public class JIFAdmin extends javax.swing.JInternalFrame {
         btnModeloResolucion = new javax.swing.JButton();
         btnClientes = new javax.swing.JButton();
         btnHistorial = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        btnVentas = new javax.swing.JButton();
         btnInventario = new javax.swing.JButton();
         btnCompras = new javax.swing.JButton();
         lblNombreNegocio = new javax.swing.JLabel();
@@ -118,16 +118,16 @@ public class JIFAdmin extends javax.swing.JInternalFrame {
         });
         jPanel1.add(btnHistorial, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 160, 120, 140));
 
-        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/JFAdmin_Ventas.png"))); // NOI18N
-        jButton5.setBorder(null);
-        jButton5.setContentAreaFilled(false);
-        jButton5.setFocusPainted(false);
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        btnVentas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/JFAdmin_Ventas.png"))); // NOI18N
+        btnVentas.setBorder(null);
+        btnVentas.setContentAreaFilled(false);
+        btnVentas.setFocusPainted(false);
+        btnVentas.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                btnVentasActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 310, 120, 140));
+        jPanel1.add(btnVentas, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 310, 120, 140));
 
         btnInventario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/JFAdmin_Inventario.png"))); // NOI18N
         btnInventario.setBorder(null);
@@ -221,7 +221,7 @@ public class JIFAdmin extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnClientesActionPerformed
 
     private void btnHistorialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorialActionPerformed
-        if (JIFHistorial.controlVentanaHistorial) { //SI YA ESTA ACTIVA UNA VENTANA DE CLIENTES, NO ABRIR OTRA
+        if (JIFHistorial.controlVentanaHistorial) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
             return;
         }
 
@@ -231,12 +231,19 @@ public class JIFAdmin extends javax.swing.JInternalFrame {
         vistaH.toFront();
     }//GEN-LAST:event_btnHistorialActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
+    private void btnVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVentasActionPerformed
+        if (JIFVentas.controlVentanaVentas) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
+            return;
+        }
+
+        JIFVentas vistaV = new JIFVentas();
+        vistaV.setLocation(((jDesktopPane1.getSize()).width - (vistaV.getSize()).width) / 2, ((jDesktopPane1.getSize()).height - (vistaV.getSize()).height) / 2);
+        jDesktopPane1.add(vistaV);
+        vistaV.toFront();
+    }//GEN-LAST:event_btnVentasActionPerformed
 
     private void btnInventarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInventarioActionPerformed
-        if (JIFInventario.controlVentanaInventario) { //SI YA ESTA ACTIVA UNA VENTANA DE CLIENTES, NO ABRIR OTRA
+        if (JIFInventario.controlVentanaInventario) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
             return;
         }
 
@@ -247,7 +254,7 @@ public class JIFAdmin extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnInventarioActionPerformed
 
     private void btnComprasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComprasActionPerformed
-        if (JIFCompras.controlVentanaCompras) { //SI YA ESTA ACTIVA UNA VENTANA DE CLIENTES, NO ABRIR OTRA
+        if (JIFCompras.controlVentanaCompras) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
             return;
         }
 
@@ -259,7 +266,7 @@ public class JIFAdmin extends javax.swing.JInternalFrame {
 
     private void btnModeloResolucionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModeloResolucionActionPerformed
 
-        if (JIFModeloResolucion.controlVentanaModeloResolucion) { //SI YA ESTA ACTIVA UNA VENTANA DE MODELO RESOLUCION, NO ABRIR OTRA
+        if (JIFModeloResolucion.controlVentanaModeloResolucion) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
             return;
         }
 
@@ -283,8 +290,8 @@ public class JIFAdmin extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnHistorial;
     private javax.swing.JButton btnInventario;
     public static javax.swing.JButton btnModeloResolucion;
+    private javax.swing.JButton btnVentas;
     private javax.swing.JLabel fondo;
-    private javax.swing.JButton jButton5;
     public javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     public static javax.swing.JLabel lblDE;

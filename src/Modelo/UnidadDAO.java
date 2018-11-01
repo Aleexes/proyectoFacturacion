@@ -97,4 +97,32 @@ public class UnidadDAO {
         }
     }
 
+    public String mostrarNombreDeUnaUnidad(int idUnidad) {
+        
+        Conexion con = new Conexion();
+        Connection accesoDB = con.getConexion();
+        String nombreUnidad = "";
+
+        if (accesoDB == null) {
+            JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+            return null;
+        }
+
+        try {
+            int i = 0;
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT CLASIFICACIONUNIDAD FROM UNIDAD WHERE UNIDAD_ID=?");
+            ps.setInt(1, idUnidad);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                nombreUnidad = rs.getString("CLASIFICACIONUNIDAD");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+        
+        return nombreUnidad;
+    }
+     
 }

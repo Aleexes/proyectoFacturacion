@@ -23,17 +23,17 @@ public class JIFVerInventario extends javax.swing.JInternalFrame {
     }
 
     private void formatearTablaInventario() {
-        TableColumnModel columnasResoluciones = this.tablaInventario.getColumnModel();
+        TableColumnModel columnasInventario = this.tablaInventario.getColumnModel();
         this.tablaInventario.setShowGrid(true);
         this.tablaInventario.setShowVerticalLines(true);
         this.tablaInventario.setShowHorizontalLines(true);
 
-        columnasResoluciones.getColumn(0).setPreferredWidth(10);
-        columnasResoluciones.getColumn(1).setPreferredWidth(80);
-        columnasResoluciones.getColumn(2).setPreferredWidth(40);
-        columnasResoluciones.getColumn(3).setPreferredWidth(40);
-        columnasResoluciones.getColumn(4).setPreferredWidth(40);
-        columnasResoluciones.getColumn(5).setPreferredWidth(10);
+        columnasInventario.getColumn(0).setPreferredWidth(10);
+        columnasInventario.getColumn(1).setPreferredWidth(80);
+        columnasInventario.getColumn(2).setPreferredWidth(40);
+        columnasInventario.getColumn(3).setPreferredWidth(40);
+        columnasInventario.getColumn(4).setPreferredWidth(40);
+        columnasInventario.getColumn(5).setPreferredWidth(10);
 
         //CENTRAR EL HEADER DE LAS COLUMNAS
         DefaultTableCellRenderer headersInventario = (DefaultTableCellRenderer) this.tablaInventario.getTableHeader().getDefaultRenderer();

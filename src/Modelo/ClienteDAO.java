@@ -114,7 +114,7 @@ public class ClienteDAO {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
     }
-
+    
     public ArrayList<String> mostrarInfoCliente(String nit) {
 
         ArrayList<String> array = new ArrayList<String>();
@@ -154,4 +154,41 @@ public class ClienteDAO {
         return array;
     }
 
+    public boolean verSiExisteCliente(String nitCliente) {
+
+        try {
+            Connection accesoDB = con.getConexion();
+
+            if (accesoDB == null) {
+                JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+            }
+
+            try {
+
+                PreparedStatement ps = accesoDB.prepareStatement("SELECT CLIENTE_NIT FROM CLIENTE WHERE CLIENTE_NIT=?");
+                ps.setString(1, nitCliente);
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    return true;
+                }
+
+            } catch (MySQLIntegrityConstraintViolationException e) {
+                JOptionPane.showMessageDialog(null, e.getMessage());
+                return false;
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage());
+                return false;
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return false;
+        }
+        return false;
+    }
+    
+    
+    
 }

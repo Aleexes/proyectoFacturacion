@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -107,6 +108,48 @@ public class ProductoDAO {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
+    }
+    
+    public ArrayList<String> mostrarInfoProducto(int idProducto) {
+
+        ArrayList<String> array = new ArrayList<String>();
+
+        try {
+            Connection accesoDB = con.getConexion();
+            if (accesoDB == null) {
+                JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+                return null;
+            }
+
+            try {
+
+                PreparedStatement ps = accesoDB.prepareStatement("SELECT * FROM PRODUCTO WHERE PRODUCTO_ID=?");
+                ps.setInt(1, idProducto);
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    array.add(String.valueOf(rs.getInt("PRODUCTO_ID")));
+                    array.add(String.valueOf(rs.getInt("UNIDAD_ID")));
+                    array.add(String.valueOf(rs.getInt("PRESENTACION_ID")));
+                    array.add(String.valueOf(rs.getInt("MARCA_ID")));
+                    array.add(rs.getString("PRODUCTO_NOMBRE"));
+                }
+
+            } catch (MySQLIntegrityConstraintViolationException e) {
+                JOptionPane.showMessageDialog(null, "No hay datos de algun negocio en la base de datos");
+                return null;
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "No hay datos de algun negocio en la base de datos");
+                return null;
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+
+        return array;
     }
     
     

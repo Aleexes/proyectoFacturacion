@@ -7,6 +7,7 @@ import Modelo.MarcaDAO;
 import Modelo.PresentacionDAO;
 import Modelo.ProductoDAO;
 import Modelo.UnidadDAO;
+import Modelo.VentaDAO;
 import static Vista.MDI.jDesktopPane1;
 import com.mxrck.autocompleter.AutoCompleterCallback;
 import com.mxrck.autocompleter.TextAutoCompleter;
@@ -82,6 +83,9 @@ public class JIFInventario extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        lblPrecioVenta1 = new javax.swing.JLabel();
+        lblPrecioVenta = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
         btnRemoverFila = new javax.swing.JButton();
         lblQ2 = new javax.swing.JLabel();
         lblQ1 = new javax.swing.JLabel();
@@ -139,6 +143,21 @@ public class JIFInventario extends javax.swing.JInternalFrame {
         });
 
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblPrecioVenta1.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        lblPrecioVenta1.setForeground(new java.awt.Color(255, 255, 255));
+        lblPrecioVenta1.setText("Q.");
+        jPanel1.add(lblPrecioVenta1, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, 30, -1));
+
+        lblPrecioVenta.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
+        lblPrecioVenta.setForeground(new java.awt.Color(255, 255, 255));
+        lblPrecioVenta.setText("No registrado");
+        jPanel1.add(lblPrecioVenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, 150, -1));
+
+        jLabel16.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
+        jLabel16.setForeground(new java.awt.Color(255, 255, 0));
+        jLabel16.setText("Precio venta encontrado:");
+        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 130, 210, -1));
 
         btnRemoverFila.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnQuitar.png"))); // NOI18N
         btnRemoverFila.setBorderPainted(false);
@@ -274,7 +293,7 @@ public class JIFInventario extends javax.swing.JInternalFrame {
 
         jLabel6.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 0));
-        jLabel6.setText("Id encontrado: #");
+        jLabel6.setText("Id encontrado:");
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 140, -1));
 
         jLabel4.setFont(new java.awt.Font("Taurus", 0, 18)); // NOI18N
@@ -287,7 +306,7 @@ public class JIFInventario extends javax.swing.JInternalFrame {
         lblIDproducto.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         lblIDproducto.setForeground(new java.awt.Color(255, 255, 255));
         lblIDproducto.setText("No registrado");
-        jPanel1.add(lblIDproducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, 260, -1));
+        jPanel1.add(lblIDproducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, 150, -1));
 
         jLabel5.setFont(new java.awt.Font("Taurus", 0, 36)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 0));
@@ -353,20 +372,15 @@ public class JIFInventario extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void inhabilitarComponentes(){
+    private void inhabilitarComponentes() {
         txtCantidad.setEnabled(false);
-        txtMarca.setEnabled(false);
-        txtNombreProducto.setEnabled(false);
         txtPrecioCompra.setEnabled(false);
-        txtPresentacion.setEnabled(false);
-        txtUnidad.setEnabled(false);
-        btnBuscarProducto.setEnabled(false);
         btnCargarProducto.setEnabled(false);
         btnInventariar.setEnabled(false);
         btnRemoverFila.setEnabled(false);
         tablaProductosCargandose.setEnabled(false);
     }
-    
+
     private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
         controlVentanaInventario = false;
     }//GEN-LAST:event_formInternalFrameClosing
@@ -376,6 +390,7 @@ public class JIFInventario extends javax.swing.JInternalFrame {
 
             int idMarca, idPresentacion, idUnidad;
             String idProductoHAYADO;
+            double precioVenta = 0;
 
             MarcaDAO mr = new MarcaDAO();
             PresentacionDAO pr = new PresentacionDAO();
@@ -387,10 +402,26 @@ public class JIFInventario extends javax.swing.JInternalFrame {
 
             ProductoDAO pd = new ProductoDAO();
             idProductoHAYADO = String.valueOf(pd.mostrarIDdeUnProducto(idUnidad, idPresentacion, idMarca, txtNombreProducto.getText()));
+
+            VentaDAO v = new VentaDAO();
+
             if (idProductoHAYADO.equals("0")) {
 
                 if (JOptionPane.showConfirmDialog(null, "No se ha encontrado el producto en catalogo, desea agregarlo?", "WARNING",
                         JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+
+                    String input;
+                    String string = "";
+
+                    do {
+                        input = JOptionPane.showInputDialog("Proporcionar el PRECIO DE VENTA para este nuevo producto:");
+                        if (input.matches("[0-9]+(\\.[0-9][0-9]?)?")) {
+                            string = input;
+                            precioVenta = Double.parseDouble(string);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Porfavor ingresar un precio de venta válido");
+                        }
+                    } while (!input.matches("[0-9]+(\\.[0-9][0-9]?)?"));
 
                     if (String.valueOf(idMarca).equals("0")) {
                         mr.insertarMarca(txtMarca.getText());
@@ -407,13 +438,17 @@ public class JIFInventario extends javax.swing.JInternalFrame {
 
                     pd.insertarProducto(idUnidad, idPresentacion, idMarca, txtNombreProducto.getText());
                     lblIDproducto.setText(String.valueOf(pd.mostrarIDdeUnProducto(idUnidad, idPresentacion, idMarca, txtNombreProducto.getText())));
+                    v.insertarNuevoPrecioVenta(Integer.parseInt(lblIDproducto.getText()), precioVenta);
+                    lblPrecioVenta.setText(String.valueOf(v.mostrarPrecioVentaProducto(Integer.parseInt(lblIDproducto.getText()))));
                     configurarBuscadores();
                 } else {
-                    lblIDproducto.setText("NO ENCONTRADO");
+                    lblIDproducto.setText("????");
+                    lblPrecioVenta.setText("????");
                 }
 
             } else {
                 lblIDproducto.setText(idProductoHAYADO);
+                lblPrecioVenta.setText(String.valueOf(v.mostrarPrecioVentaProducto(Integer.parseInt(idProductoHAYADO))));
             }
         } else {
             JOptionPane.showMessageDialog(null, "Los parametros de busqueda estan vacíos");
@@ -536,11 +571,12 @@ public class JIFInventario extends javax.swing.JInternalFrame {
             }
             lblDineroCargado.setText("0.00");
             lblMontoCompra.setText("0.00");
-            
-            CompraDAO c = new CompraDAO(); 
+
+            CompraDAO c = new CompraDAO();
             c.colocarCompraComoRegistrada(id_compra);
             JOptionPane.showMessageDialog(null, "¡Mercadería inventariada con éxito!");
             inhabilitarComponentes();
+            lblIDCOMPRA.setText("????");
 
         }
     }//GEN-LAST:event_btnInventariarActionPerformed
@@ -632,6 +668,7 @@ public class JIFInventario extends javax.swing.JInternalFrame {
     public javax.swing.JLabel jLabel13;
     public javax.swing.JLabel jLabel14;
     public javax.swing.JLabel jLabel15;
+    public javax.swing.JLabel jLabel16;
     public javax.swing.JLabel jLabel4;
     public javax.swing.JLabel jLabel5;
     public javax.swing.JLabel jLabel6;
@@ -646,6 +683,8 @@ public class JIFInventario extends javax.swing.JInternalFrame {
     public javax.swing.JLabel lblIDCOMPRA;
     public javax.swing.JLabel lblIDproducto;
     public javax.swing.JLabel lblMontoCompra;
+    public javax.swing.JLabel lblPrecioVenta;
+    public javax.swing.JLabel lblPrecioVenta1;
     public javax.swing.JLabel lblQ1;
     public javax.swing.JLabel lblQ2;
     private javax.swing.JTable tablaProductosCargandose;

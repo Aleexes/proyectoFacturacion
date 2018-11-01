@@ -75,9 +75,9 @@ public class PresentacionDAO {
     }
 
     public void insertarPresentacion(String nombrePresentacion) {
-        
+
         Conexion con = new Conexion();
-        
+
         try {
             Connection accesoDB = con.getConexion();
 
@@ -102,4 +102,33 @@ public class PresentacionDAO {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
     }
+
+    public String mostrarNombreDeUnaPresentacion(int idPresentacion) {
+
+        Conexion con = new Conexion();
+        Connection accesoDB = con.getConexion();
+        String nombrePresentacion = "";
+
+        if (accesoDB == null) {
+            JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+            return null;
+        }
+
+        try {
+            int i = 0;
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT PRESENTACION FROM PRESENTACION WHERE PRESENTACION_ID=?");
+            ps.setInt(1, idPresentacion);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                nombrePresentacion = rs.getString("PRESENTACION");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+
+        return nombrePresentacion;
+    }
+
 }

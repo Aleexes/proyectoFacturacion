@@ -61,13 +61,13 @@ public class JIFLogin extends javax.swing.JInternalFrame {
             }
         });
 
-        txtPassword.setText("admin");
+        txtPassword.setText("carlos");
 
         jLabel2.setText("contraseña:");
 
         jLabel1.setText("usuario:");
 
-        txtUsuario.setText("admin");
+        txtUsuario.setText("carlos");
         txtUsuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtUsuarioActionPerformed(evt);

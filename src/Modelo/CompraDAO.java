@@ -2,9 +2,12 @@ package Modelo;
 
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -192,4 +195,30 @@ public class CompraDAO {
 
     }
 
+    public ArrayList<Object[]> mostrarCompras(Date fechaDESDE, Date fechaHASTA) {
+
+        Connection accesoDB = con.getConexion();
+        try {
+
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT COMPRA_ID,COMPRA_NUMEROFACTURANOSDIERON,COMPRA_FECHAREALIZACION,COMPRA_MONTOTOTAL FROM COMPRA WHERE COMPRA_FECHAREALIZACION>=? and COMPRA_FECHAREALIZACION<=?");
+            ps.setDate(1, fechaDESDE);
+            ps.setDate(2, fechaHASTA);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsm = rs.getMetaData();
+            ArrayList<Object[]> data = new ArrayList<>();
+
+            while (rs.next()) {
+                Object[] rows = new Object[rsm.getColumnCount()];
+                for (int i = 0; i < rows.length; i++) {
+                    rows[i] = rs.getObject(i + 1);
+                }
+                data.add(rows);
+            }
+            return data;
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+    }
 }

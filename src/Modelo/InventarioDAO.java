@@ -161,13 +161,7 @@ public class InventarioDAO {
             JOptionPane.showMessageDialog(null, e.getMessage());
             return null;
         }
-        
-        
-        
-        
-        
+  
     }
-    
-    
-    
+
 }

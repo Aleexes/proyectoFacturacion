@@ -99,7 +99,33 @@ public class MarcaDAO {
         }
     }
     
-    
+    public String mostrarNombreDeUnaMarca(int idMarca) {
+        
+        Conexion con = new Conexion();
+        Connection accesoDB = con.getConexion();
+        String nombreMarca = "";
+
+        if (accesoDB == null) {
+            JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+            return null;
+        }
+
+        try {
+            int i = 0;
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT NOMBRE_MARCA FROM MARCA WHERE MARCA_ID=?");
+            ps.setInt(1, idMarca);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                nombreMarca = rs.getString("NOMBRE_MARCA");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+        
+        return nombreMarca;
+    }
     
     
 }

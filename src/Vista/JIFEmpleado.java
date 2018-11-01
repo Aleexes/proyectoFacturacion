@@ -79,7 +79,7 @@ public class JIFEmpleado extends javax.swing.JInternalFrame {
         jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 80, 120, 140));
 
         jLabel1.setFont(new java.awt.Font("Taurus", 2, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 106, 0));
+        jLabel1.setForeground(new java.awt.Color(255, 153, 0));
         jLabel1.setText("Emision de documentos");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, 390, -1));
 
