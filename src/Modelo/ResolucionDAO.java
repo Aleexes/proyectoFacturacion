@@ -150,7 +150,7 @@ public class ResolucionDAO {
             return null;
         }
     }
-    
+
     public ArrayList<String> mostrarResolucionActivaFACTURA() {
 
         ArrayList<String> array = new ArrayList<String>();
@@ -193,7 +193,36 @@ public class ResolucionDAO {
 
         return array;
     }
-    
-    
-    
+
+    public void desactivarResolucion() {
+
+        try {
+            Connection accesoDB = con.getConexion();
+
+            if (accesoDB == null) {
+                JOptionPane.showMessageDialog(null, "ERROR: No se pudo conectar con la base de datos");
+                return;
+            }
+
+            try {
+                
+                PreparedStatement ps = accesoDB.prepareStatement("UPDATE RESOLUCION SET RESOLUCION_ACTIVA=0 WHERE RESOLUCION_ACTIVA=1 AND RESOLUCION_TIPODOC='Factura'");
+                ps.executeUpdate();
+                return;
+
+            } catch (MySQLIntegrityConstraintViolationException e) {
+                JOptionPane.showMessageDialog(null, e.getMessage());
+                return;
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage());
+                return;
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return;
+        }
+    }
+
 }

@@ -2,13 +2,16 @@ package Vista;
 
 import Controlador.ControladorCliente;
 import Modelo.ClienteDAO;
+import Modelo.Factura;
 import Modelo.FacturaDAO;
+import Modelo.InventarioDAO;
 import Modelo.MarcaDAO;
 import Modelo.NegocioDAO;
 import Modelo.PresentacionDAO;
 import Modelo.ProductoDAO;
 import Modelo.ResolucionDAO;
 import Modelo.SistemaDAO;
+import Modelo.Transaccion;
 import Modelo.TransaccionDAO;
 import Modelo.UnidadDAO;
 import Modelo.VentaDAO;
@@ -16,7 +19,16 @@ import com.mxrck.autocompleter.AutoCompleterCallback;
 import com.mxrck.autocompleter.TextAutoCompleter;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.PrintJob;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
@@ -33,6 +45,7 @@ import javax.swing.table.TableColumnModel;
 public class JIFFactura extends javax.swing.JInternalFrame {
 
     DefaultTableModel modelitoTablaCargandose;
+    DefaultTableModel modeloTablaListaFACTURA;
     static public boolean controlVentanaFacturacion;
     private TextAutoCompleter acNIT;
     int backspace = 0;
@@ -45,6 +58,7 @@ public class JIFFactura extends javax.swing.JInternalFrame {
     public JIFFactura() {
         initComponents();
         modelitoTablaCargandose = (DefaultTableModel) tablaProductosFacturados.getModel();
+        modeloTablaListaFACTURA = (DefaultTableModel) tablaListaFactura.getModel();
 
         //PURAS CONFIGURACIONES VISUALES
         controlVentanaFacturacion = true;
@@ -65,6 +79,8 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         lblNumResoFactura.setHorizontalAlignment(SwingConstants.CENTER);
         panelFacturacion.setVisible(false);
         btnOKImprimir.setVisible(false);
+        lblIDnoEncontrado.setVisible(false);
+        lblCantidadSobrepasa.setVisible(false);
         bloquearComponentesParaCargarProductos();
 
         //CONFIGURACIONES INICIALES DEL BUSCADOR
@@ -102,13 +118,15 @@ public class JIFFactura extends javax.swing.JInternalFrame {
     private void formatearTablaFacturados() {
 
         TableColumnModel columnasTablaDeFactura = this.tablaListaFactura.getColumnModel();
-        this.tablaListaFactura.setShowGrid(false);
-        this.tablaListaFactura.setShowVerticalLines(false);
-        this.tablaListaFactura.setShowHorizontalLines(false);
-        this.tablaListaFactura.setOpaque(false);
+        this.tablaListaFactura.setShowGrid(true);
+        this.tablaListaFactura.setShowVerticalLines(true);
+        this.tablaListaFactura.setShowHorizontalLines(true);
+        this.tablaListaFactura.setOpaque(true);
         ((DefaultTableCellRenderer) this.tablaListaFactura.getDefaultRenderer(Object.class)).setOpaque(false);
-        jScrollPane1.setOpaque(false);
-        jScrollPane1.getViewport().setOpaque(false);
+        columnasTablaDeFactura.getColumn(0).setPreferredWidth(200);
+        columnasTablaDeFactura.getColumn(1).setPreferredWidth(50);
+        columnasTablaDeFactura.getColumn(2).setPreferredWidth(50);
+        columnasTablaDeFactura.getColumn(3).setPreferredWidth(60);
 
         //CENTRAR EL HEADER DE LAS COLUMNAS
         DefaultTableCellRenderer headersTablaDeFactura = (DefaultTableCellRenderer) this.tablaListaFactura.getTableHeader().getDefaultRenderer();
@@ -117,7 +135,7 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         DefaultTableCellRenderer celdasTablaDeFactura = new DefaultTableCellRenderer();
         celdasTablaDeFactura.setHorizontalAlignment(SwingConstants.CENTER);
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             this.tablaListaFactura.getColumnModel().getColumn(i).setCellRenderer(celdasTablaDeFactura);
         }
 
@@ -152,6 +170,8 @@ public class JIFFactura extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         panelDatos = new javax.swing.JPanel();
+        lblCantidadSobrepasa = new javax.swing.JLabel();
+        lblIDnoEncontrado = new javax.swing.JLabel();
         lblQ = new javax.swing.JLabel();
         lblMontoTOTAL = new javax.swing.JLabel();
         btnRemoverFila = new javax.swing.JButton();
@@ -207,14 +227,14 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         lblNitCliente = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         lblDireccionCliente = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tablaListaFactura = new javax.swing.JTable();
-        jLabel16 = new javax.swing.JLabel();
-        lblTotalCompra = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
         lblSujetoAPagos = new javax.swing.JLabel();
         lblGraciasPorPreferirnos = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        lblTotalCompra = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tablaListaFactura = new javax.swing.JTable();
         lblFondo = new javax.swing.JLabel();
 
         setClosable(true);
@@ -241,6 +261,16 @@ public class JIFFactura extends javax.swing.JInternalFrame {
 
         panelDatos.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        lblCantidadSobrepasa.setFont(new java.awt.Font("Tahoma", 3, 14)); // NOI18N
+        lblCantidadSobrepasa.setForeground(new java.awt.Color(255, 51, 0));
+        lblCantidadSobrepasa.setText("Cantidad sobrepasa existencias en inventario*");
+        panelDatos.add(lblCantidadSobrepasa, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 340, 320, -1));
+
+        lblIDnoEncontrado.setFont(new java.awt.Font("Tahoma", 3, 14)); // NOI18N
+        lblIDnoEncontrado.setForeground(new java.awt.Color(255, 51, 0));
+        lblIDnoEncontrado.setText("ID de producto no registrado*");
+        panelDatos.add(lblIDnoEncontrado, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 330, 220, -1));
+
         lblQ.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
         lblQ.setForeground(new java.awt.Color(255, 153, 0));
         lblQ.setText("Q.");
@@ -264,11 +294,21 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         btnOKImprimir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnOK.png"))); // NOI18N
         btnOKImprimir.setBorderPainted(false);
         btnOKImprimir.setContentAreaFilled(false);
+        btnOKImprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOKImprimirActionPerformed(evt);
+            }
+        });
         panelDatos.add(btnOKImprimir, new org.netbeans.lib.awtextra.AbsoluteConstraints(1010, 540, 80, 50));
 
         btnOK.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnOK.png"))); // NOI18N
         btnOK.setBorderPainted(false);
         btnOK.setContentAreaFilled(false);
+        btnOK.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOKActionPerformed(evt);
+            }
+        });
         panelDatos.add(btnOK, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 540, 80, 50));
 
         btnAgregarProducto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnAgregarProducto.png"))); // NOI18N
@@ -279,7 +319,7 @@ public class JIFFactura extends javax.swing.JInternalFrame {
                 btnAgregarProductoActionPerformed(evt);
             }
         });
-        panelDatos.add(btnAgregarProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 280, 200, 50));
+        panelDatos.add(btnAgregarProducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 270, 200, 50));
 
         tablaProductosFacturados.setBackground(new java.awt.Color(255, 204, 51));
         tablaProductosFacturados.setModel(new javax.swing.table.DefaultTableModel(
@@ -375,137 +415,157 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         txtIDproducto.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         panelDatos.add(txtIDproducto, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 270, 280, 30));
 
+        panelFacturacion.setBackground(new java.awt.Color(255, 255, 255));
         panelFacturacion.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblNombreComercialEmisor.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         lblNombreComercialEmisor.setText("?????");
-        panelFacturacion.add(lblNombreComercialEmisor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 380, -1));
+        panelFacturacion.add(lblNombreComercialEmisor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 380, -1));
 
         lblDenominacionSocial.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         lblDenominacionSocial.setText("??????");
-        panelFacturacion.add(lblDenominacionSocial, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 380, -1));
+        panelFacturacion.add(lblDenominacionSocial, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 380, -1));
 
         lblDireccionEmisor.setText("??????");
-        panelFacturacion.add(lblDireccionEmisor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 380, -1));
+        panelFacturacion.add(lblDireccionEmisor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 380, -1));
 
         txtNitFacturacion.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         txtNitFacturacion.setText("NIT:");
-        panelFacturacion.add(txtNitFacturacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 60, 40, -1));
+        panelFacturacion.add(txtNitFacturacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, 40, -1));
 
         lblNitEMISOR.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         lblNitEMISOR.setText("??????????");
-        panelFacturacion.add(lblNitEMISOR, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 60, 80, -1));
+        panelFacturacion.add(lblNitEMISOR, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, 80, -1));
 
         jLabel1.setText("Resolución");
-        panelFacturacion.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 80, -1, -1));
+        panelFacturacion.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, -1, -1));
 
         lblNumResoFactura.setText("????????????????");
-        panelFacturacion.add(lblNumResoFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 80, 80, -1));
+        panelFacturacion.add(lblNumResoFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 90, 80, -1));
 
         jLabel3.setText("del");
-        panelFacturacion.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 80, -1, -1));
+        panelFacturacion.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 90, -1, -1));
 
         lblFechaResoFactura.setText("???????????");
-        panelFacturacion.add(lblFechaResoFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 80, -1, -1));
+        panelFacturacion.add(lblFechaResoFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 90, -1, -1));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setText("serie");
-        panelFacturacion.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, -1, -1));
+        panelFacturacion.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 110, -1, -1));
 
         lblNumeroSerie.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         lblNumeroSerie.setText("????");
-        panelFacturacion.add(lblNumeroSerie, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 100, 30, -1));
+        panelFacturacion.add(lblNumeroSerie, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 110, 30, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel4.setText("de");
-        panelFacturacion.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 100, -1, -1));
+        panelFacturacion.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 110, -1, -1));
 
         lblNumDEL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         lblNumDEL.setText("???");
-        panelFacturacion.add(lblNumDEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 100, 20, -1));
+        panelFacturacion.add(lblNumDEL, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 110, 20, -1));
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setText("al");
-        panelFacturacion.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 100, -1, -1));
+        panelFacturacion.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 110, -1, -1));
 
         lblNumAL.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         lblNumAL.setText("??????");
-        panelFacturacion.add(lblNumAL, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 100, -1, -1));
+        panelFacturacion.add(lblNumAL, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 110, -1, -1));
 
         jLabel7.setText("Res.");
-        panelFacturacion.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 140, -1, -1));
+        panelFacturacion.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 150, -1, -1));
 
         lblNumResoSistema.setText("??????????????????");
-        panelFacturacion.add(lblNumResoSistema, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 140, 110, -1));
+        panelFacturacion.add(lblNumResoSistema, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 150, 110, -1));
 
         jLabel8.setText("de");
-        panelFacturacion.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 140, -1, -1));
+        panelFacturacion.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 150, -1, -1));
 
         lblFechaResoSistema.setText("??????????");
-        panelFacturacion.add(lblFechaResoSistema, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 140, -1, -1));
+        panelFacturacion.add(lblFechaResoSistema, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 150, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText("FACTURA SERIE");
-        panelFacturacion.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, -1, -1));
+        panelFacturacion.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, -1, -1));
 
         lblNumSerieFactura.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         lblNumSerieFactura.setText("?");
-        panelFacturacion.add(lblNumSerieFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 160, -1, -1));
+        panelFacturacion.add(lblNumSerieFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 170, -1, -1));
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel10.setText("No.");
-        panelFacturacion.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 160, -1, -1));
+        panelFacturacion.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 170, -1, -1));
 
         lblNumeroDeFactura.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         lblNumeroDeFactura.setText("??????????????");
-        panelFacturacion.add(lblNumeroDeFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 160, 110, -1));
+        panelFacturacion.add(lblNumeroDeFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 170, 110, -1));
 
         jLabel9.setText("FECHA DE EMISION:");
-        panelFacturacion.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 180, -1, -1));
+        panelFacturacion.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 190, -1, -1));
 
         lblFechaEmisionFactura.setText("???????????");
-        panelFacturacion.add(lblFechaEmisionFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 180, -1, -1));
+        panelFacturacion.add(lblFechaEmisionFactura, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 190, -1, -1));
 
         jLabel12.setText("COMPUTADORA No.");
-        panelFacturacion.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, -1, -1));
+        panelFacturacion.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, -1, -1));
 
         lblNumeroMaquina.setText("?????");
-        panelFacturacion.add(lblNumeroMaquina, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 200, 40, -1));
+        panelFacturacion.add(lblNumeroMaquina, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 210, 40, -1));
 
         jLabel11.setText("TRANSACCION:");
-        panelFacturacion.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, -1, -1));
+        panelFacturacion.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 230, -1, -1));
 
         lblNumTransaccion.setText("?????????????");
-        panelFacturacion.add(lblNumTransaccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 220, 80, -1));
+        panelFacturacion.add(lblNumTransaccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 230, 80, -1));
 
         jLabel14.setText("Nombre:");
-        panelFacturacion.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 240, -1, -1));
+        panelFacturacion.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 250, -1, -1));
 
         lblNombreCliente.setText("????????????????????????????????????");
-        panelFacturacion.add(lblNombreCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 240, 230, -1));
+        panelFacturacion.add(lblNombreCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 250, 230, -1));
 
         jLabel13.setText("Nit:");
-        panelFacturacion.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, -1, -1));
+        panelFacturacion.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 270, -1, -1));
 
         lblNitCliente.setText("????????????");
-        panelFacturacion.add(lblNitCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 260, 70, -1));
+        panelFacturacion.add(lblNitCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 270, 70, -1));
 
         jLabel15.setText("Dirección:");
-        panelFacturacion.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 280, -1, -1));
+        panelFacturacion.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 290, -1, -1));
 
         lblDireccionCliente.setText("????????????????????????????????????");
-        panelFacturacion.add(lblDireccionCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 280, 230, -1));
+        panelFacturacion.add(lblDireccionCliente, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 290, 230, -1));
+
+        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel17.setText("Resolución Sistema");
+        panelFacturacion.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 130, -1, -1));
+
+        lblSujetoAPagos.setText("Sujeto a Pago trimestrales");
+        panelFacturacion.add(lblSujetoAPagos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 490, 400, -1));
+
+        lblGraciasPorPreferirnos.setText("GRACIAS POR PREFERIRNOS");
+        panelFacturacion.add(lblGraciasPorPreferirnos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 510, 400, -1));
+
+        jLabel16.setText("TOTAL");
+        panelFacturacion.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 460, -1, -1));
+
+        jLabel18.setText("Q.");
+        panelFacturacion.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 460, -1, -1));
+
+        lblTotalCompra.setText("0.00");
+        panelFacturacion.add(lblTotalCompra, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 460, 50, -1));
 
         tablaListaFactura.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Cantidad", "Producto", "Precio"
+                "Producto", "Cant", "Precio", "Subtotal"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -517,30 +577,12 @@ public class JIFFactura extends javax.swing.JInternalFrame {
             tablaListaFactura.getColumnModel().getColumn(0).setResizable(false);
             tablaListaFactura.getColumnModel().getColumn(1).setResizable(false);
             tablaListaFactura.getColumnModel().getColumn(2).setResizable(false);
+            tablaListaFactura.getColumnModel().getColumn(3).setResizable(false);
         }
 
-        panelFacturacion.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, 360, 120));
+        panelFacturacion.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, 360, 120));
 
-        jLabel16.setText("TOTAL");
-        panelFacturacion.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 440, -1, -1));
-
-        lblTotalCompra.setText("0.00");
-        panelFacturacion.add(lblTotalCompra, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 440, 50, -1));
-
-        jLabel18.setText("Q.");
-        panelFacturacion.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 440, -1, -1));
-
-        lblSujetoAPagos.setText("Sujeto a Pago trimestrales");
-        panelFacturacion.add(lblSujetoAPagos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 470, 400, -1));
-
-        lblGraciasPorPreferirnos.setText("GRACIAS POR PREFERIRNOS");
-        panelFacturacion.add(lblGraciasPorPreferirnos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 490, 400, -1));
-
-        jLabel17.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel17.setText("Resolución Sistema");
-        panelFacturacion.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 120, -1, -1));
-
-        panelDatos.add(panelFacturacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 10, 400, 520));
+        panelDatos.add(panelFacturacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 10, 400, 530));
 
         lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/JIFFacturacion.png"))); // NOI18N
         panelDatos.add(lblFondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 600));
@@ -624,6 +666,21 @@ public class JIFFactura extends javax.swing.JInternalFrame {
 
             ProductoDAO pd = new ProductoDAO();
             infoProducto = pd.mostrarInfoProducto(Integer.parseInt(txtIDproducto.getText()));
+            if (infoProducto.isEmpty()) {
+                lblIDnoEncontrado.setVisible(true);
+                return;
+            } else {
+                lblIDnoEncontrado.setVisible(false);
+            }
+            
+            InventarioDAO in = new InventarioDAO();
+            if(Integer.parseInt(txtCantidadProducto.getText()) > in.obtenerCantidadDeInventario(Integer.parseInt(txtIDproducto.getText()))){
+                lblCantidadSobrepasa.setVisible(true);
+                return;
+            }else{
+                lblCantidadSobrepasa.setVisible(false);
+            }
+            
 
             nombreMarca = mr.mostrarNombreDeUnaMarca(Integer.parseInt(infoProducto.get(3)));
             nombrePresentacion = pr.mostrarNombreDeUnaPresentacion(Integer.parseInt(infoProducto.get(2)));
@@ -660,6 +717,89 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_txtCantidadProductoKeyTyped
 
+    private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
+
+        int a = modeloTablaListaFACTURA.getRowCount() - 1;
+        for (int i = a; i >= 0; i--) {
+            modeloTablaListaFACTURA.removeRow(i);
+        }
+
+        int j = modelitoTablaCargandose.getRowCount();
+        for (int i = 0; i < j; i++) {
+            modeloTablaListaFACTURA.addRow(new Object[]{modelitoTablaCargandose.getValueAt(i, 3).toString() + " " + modelitoTablaCargandose.getValueAt(i, 4).toString() + " " + modelitoTablaCargandose.getValueAt(i, 1).toString() + " " + modelitoTablaCargandose.getValueAt(i, 2).toString(),
+                modelitoTablaCargandose.getValueAt(i, 5),
+                modelitoTablaCargandose.getValueAt(i, 6),
+                Double.parseDouble(modelitoTablaCargandose.getValueAt(i, 5).toString()) * Double.parseDouble(modelitoTablaCargandose.getValueAt(i, 6).toString()),});
+        }
+
+        lblTotalCompra.setText(lblMontoTOTAL.getText());
+
+    }//GEN-LAST:event_btnOKActionPerformed
+
+    public void imprimirFactura() {
+
+        PrinterJob pj = PrinterJob.getPrinterJob();
+        pj.setJobName(" Print Component ");
+
+        pj.setPrintable(new Printable() {
+            public int print(Graphics pg, PageFormat pf, int pageNum) {
+                if (pageNum > 0) {
+                    return Printable.NO_SUCH_PAGE;
+                }
+
+                Graphics2D g2 = (Graphics2D) pg;
+                g2.translate(pf.getImageableX(), pf.getImageableY());
+                panelFacturacion.paint(g2);
+                return Printable.PAGE_EXISTS;
+            }
+        });
+        if (pj.printDialog() == false) {
+            return;
+        }
+
+        try {
+            pj.print();
+        } catch (PrinterException ex) {
+            // handle exception
+        }
+    }
+
+
+    private void btnOKImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKImprimirActionPerformed
+
+        if(modeloTablaListaFACTURA.getRowCount() == 0){
+            JOptionPane.showMessageDialog(null, "No hay productos agregados");
+            return;
+        }
+        
+        
+        
+        TransaccionDAO trans = new TransaccionDAO();
+        Transaccion t = new Transaccion(Integer.parseInt(lblNumeroDeFactura.getText()), Double.parseDouble(lblTotalCompra.getText()), lblNumSerieFactura.getText(), "Factura", "Emitido", Date.valueOf(lblFechaEmisionFactura.getText()));
+        Factura f = new Factura(Integer.parseInt(lblNumeroDeFactura.getText()), Integer.parseInt(lblNumTransaccion.getText()), lblNitEMISOR.getText(), lblNitCliente.getText(), lblNumResoFactura.getText());
+
+        trans.transaccionVentaFactura(t, f, modelitoTablaCargandose);
+
+        imprimirFactura();
+        bloquearFacturacion();
+
+        if ((Integer.parseInt(lblNumeroDeFactura.getText()) + 1) > Integer.parseInt(lblNumAL.getText())) {
+            JOptionPane.showMessageDialog(null, "Se ha llegado al limite de facturas posibles para la resolucion " + lblNumResoFactura.getText() + "\n El sistema de facturación queda detenido");
+            txtDomicilio.setEnabled(false);
+            txtNombreCliente.setEnabled(false);
+            txtNit.setEnabled(false);
+            btnGuardarCliente.setEnabled(false);
+            lblDomicilio.setEnabled(false);
+            lblNombre.setEnabled(false);
+            lblNit.setEnabled(false);
+            ResolucionDAO r = new ResolucionDAO();
+            r.desactivarResolucion();
+            return;
+        }
+
+
+    }//GEN-LAST:event_btnOKImprimirActionPerformed
+
     private void cargarEncabezado() {
 
         NegocioDAO negInfo = new NegocioDAO();
@@ -669,9 +809,10 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         ResolucionDAO resInfo = new ResolucionDAO();
         infoResolucion = resInfo.mostrarResolucionActivaFACTURA();
         FacturaDAO facInfo = new FacturaDAO();
-        int numFactura = facInfo.mostrarNumeroUltimaFacturaIngresada() + 1;
+        int numFactura = facInfo.mostrarNumeroUltimaFacturaIngresadaParaEsaReslucion() + 1;
+
         TransaccionDAO transInfo = new TransaccionDAO();
-        int numTransaccion = transInfo.mostrarNumeroUltimaFacturaIngresada();
+        int numTransaccion = transInfo.mostrarNumeroUltimaTransaccion() + 1;
 
         //INFORMACION GENERAL DEL NEGOCIO Y DEL SISTEMA
         lblNombreComercialEmisor.setText(infoNegocio.get(1));
@@ -701,6 +842,9 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         lblNumSerieFactura.setText(infoResolucion.get(4));
 
         //OBTENER EL NUMERO DE FACTURA QUE TOCA
+        if (String.valueOf(facInfo.mostrarNumeroUltimaFacturaIngresadaParaEsaReslucion()).equals("0")) {
+            numFactura = Integer.parseInt(lblNumDEL.getText());
+        }
         lblNumeroDeFactura.setText(String.valueOf(numFactura));
 
         //OBTENER EL NUMERO DE TRANSACCION QUE TOCA
@@ -710,7 +854,27 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         btnOKImprimir.setVisible(true);
     }
 
-    private void bloquearComponentesParaCargarProductos(){
+    private void bloquearFacturacion() {
+
+        int a = modeloTablaListaFACTURA.getRowCount() - 1;
+        for (int i = a; i >= 0; i--) {
+            modeloTablaListaFACTURA.removeRow(i);
+        }
+
+        int b = modelitoTablaCargandose.getRowCount() - 1;
+        for (int i = b; i >= 0; i--) {
+            modelitoTablaCargandose.removeRow(i);
+        }
+
+        bloquearComponentesParaCargarProductos();
+        panelFacturacion.setVisible(false);
+        btnOKImprimir.setVisible(false);
+        lblMontoTOTAL.setText("0.00");
+        txtCantidadProducto.setText("");
+        txtIDproducto.setText("");
+    }
+
+    private void bloquearComponentesParaCargarProductos() {
         txtIDproducto.setEnabled(false);
         txtCantidadProducto.setEnabled(false);
         lblIDproducto.setEnabled(false);
@@ -722,8 +886,8 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         btnOK.setEnabled(false);
         tablaProductosFacturados.setEnabled(false);
     }
-    
-    private void desbloquearComponentesParaCargarProductos(){
+
+    private void desbloquearComponentesParaCargarProductos() {
         txtIDproducto.setEnabled(true);
         txtCantidadProducto.setEnabled(true);
         lblIDproducto.setEnabled(true);
@@ -735,8 +899,6 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         btnOK.setEnabled(true);
         tablaProductosFacturados.setEnabled(true);
     }
-    
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarProducto;
@@ -765,6 +927,7 @@ public class JIFFactura extends javax.swing.JInternalFrame {
     private javax.swing.JScrollPane jScrollPane;
     private javax.swing.JScrollPane jScrollPane1;
     public javax.swing.JLabel lblCantidadProducto;
+    private javax.swing.JLabel lblCantidadSobrepasa;
     private javax.swing.JLabel lblDenominacionSocial;
     private javax.swing.JLabel lblDireccionCliente;
     private javax.swing.JLabel lblDireccionEmisor;
@@ -774,6 +937,7 @@ public class JIFFactura extends javax.swing.JInternalFrame {
     private javax.swing.JLabel lblFechaResoSistema;
     private javax.swing.JLabel lblFondo;
     private javax.swing.JLabel lblGraciasPorPreferirnos;
+    private javax.swing.JLabel lblIDnoEncontrado;
     public javax.swing.JLabel lblIDproducto;
     private javax.swing.JLabel lblMontoTOTAL;
     public javax.swing.JLabel lblNit;

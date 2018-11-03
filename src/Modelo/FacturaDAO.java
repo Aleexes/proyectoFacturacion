@@ -17,7 +17,7 @@ public class FacturaDAO {
         con = new Conexion();
     }
     
-    public int mostrarNumeroUltimaFacturaIngresada() {
+    public int mostrarNumeroUltimaFacturaIngresadaParaEsaReslucion() {
 
         Conexion con = new Conexion();
         Connection accesoDB = con.getConexion();
@@ -30,11 +30,11 @@ public class FacturaDAO {
 
         try {
             int i = 0;
-            PreparedStatement ps = accesoDB.prepareStatement("SELECT FACTURA_NUMERO FROM FACTURA ORDER BY FACTURA_NUMERO DESC limit 1");
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT F.FACTURA_NUM FROM FACTURA F INNER JOIN RESOLUCION R ON F.RESOLUCION_NUMERO = R.RESOLUCION_NUMERO WHERE R.RESOLUCION_ACTIVA=1 ORDER BY FACTURA_NUMERO DESC limit 1");
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                J = rs.getInt("FACTURA_NUMERO");
+                J = rs.getInt("FACTURA_NUM");
                 return J;
             }
             return 0;
@@ -43,6 +43,5 @@ public class FacturaDAO {
             JOptionPane.showMessageDialog(null, e.getMessage());
             return 0;
         }
-    }
-    
+    }  
 }
