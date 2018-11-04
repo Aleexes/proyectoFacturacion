@@ -15,13 +15,13 @@ import javax.swing.JOptionPane;
  * @author alexc
  */
 public class VentaDAO {
-    
+
     Conexion con;
 
     public VentaDAO() {
         con = new Conexion();
     }
-    
+
     public double mostrarPrecioVentaProducto(int idProducto) {
 
         Conexion con = new Conexion();
@@ -50,9 +50,9 @@ public class VentaDAO {
             return 0;
         }
     }
-    
+
     public void insertarNuevoPrecioVenta(int idProducto, double precioVenta) {
-        
+
         try {
             Connection accesoDB = con.getConexion();
 
@@ -78,10 +78,10 @@ public class VentaDAO {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
     }
-    
+
     public ArrayList<Object[]> mostrarProductosYsusPrecios(){
-        
-         Connection accesoDB = con.getConexion();
+
+        Connection accesoDB = con.getConexion();
         try {
 
             PreparedStatement ps = accesoDB.prepareStatement("SELECT V.PRODUCTO_ID, P.PRODUCTO_NOMBRE, M.NOMBRE_MARCA, PR.PRESENTACION, U.CLASIFICACIONUNIDAD, V.VENTA_PRECIOVENTA FROM VENTA V INNER JOIN PRODUCTO P ON V.PRODUCTO_ID = P.PRODUCTO_ID INNER JOIN MARCA M ON M.MARCA_ID = P.MARCA_ID INNER JOIN PRESENTACION PR ON PR.PRESENTACION_ID = P.PRESENTACION_ID INNER JOIN UNIDAD U ON U.UNIDAD_ID = P.UNIDAD_ID ORDER BY P.PRODUCTO_NOMBRE");
@@ -97,15 +97,14 @@ public class VentaDAO {
                 data.add(rows);
             }
             return data;
-            
-            
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             return null;
         }
-  
+
     }
-    
+
     public boolean verSiExisteProducto(int idProducto) {
 
         try {
@@ -181,7 +180,5 @@ public class VentaDAO {
             return;
         }
     }
-    
-    
-    
+
 }
