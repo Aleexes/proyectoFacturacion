@@ -4,6 +4,7 @@ import Controlador.ControladorLogin;
 import Modelo.UsuarioDAO;
 
 //INICIO: IMPORTS PARA CONTROL DE VENTANAS
+import static Vista.JIFDetallesVentas.controlVentanaDetallesVenta;
 import static Vista.JIFVerPrecios.controlVentanaVerPrecios;
 import static Vista.JIFVentas.controlVentanaVentas;
 import static Vista.JIFComprasHistoriales.controlVentanaComprasHistoriales;
@@ -157,6 +158,7 @@ public class MDI extends javax.swing.JFrame {
 
     private void dejarDisponibleVentanas() {
         //VENTANAS SECCION ADMIN
+        controlVentanaDetallesVenta = false;
         controlVentanaAdmin = false;
         controlVentanaModeloResolucion = false;
         controlVentanaClientes = false;

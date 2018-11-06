@@ -680,6 +680,7 @@ public class JIFFactura extends javax.swing.JInternalFrame {
             UnidadDAO u = new UnidadDAO();
             VentaDAO v = new VentaDAO();
 
+            //VER QUE EL ID DEL PRODUCTO ESTE REGISTRADO
             ProductoDAO pd = new ProductoDAO();
             infoProducto = pd.mostrarInfoProducto(Integer.parseInt(txtIDproducto.getText()));
             if (infoProducto.isEmpty()) {
@@ -689,8 +690,26 @@ public class JIFFactura extends javax.swing.JInternalFrame {
                 lblIDnoEncontrado.setVisible(false);
             }
 
+            //VER QUE LA CANTIDAD QUE SE INGRESA NO SUPERE AL INVENTARIO
             InventarioDAO in = new InventarioDAO();
-            if (Integer.parseInt(txtCantidadProducto.getText()) > in.obtenerCantidadDeInventario(Integer.parseInt(txtIDproducto.getText()))) {
+            int cantEnInventario = in.obtenerCantidadDeInventario(Integer.parseInt(txtIDproducto.getText()));
+            if (Integer.parseInt(txtCantidadProducto.getText()) > cantEnInventario) {
+                lblCantidadSobrepasa.setVisible(true);
+                return;
+            } else {
+                lblCantidadSobrepasa.setVisible(false);
+            }
+
+            //VER QUE LA CANTIDAD QUE SE ACUMULA NO SUPERE AL INVENTARIO
+            int cantidadAcumulada = 0;
+            cantidadAcumulada = Integer.parseInt(txtCantidadProducto.getText());
+            for (int i = 0; i < modelitoTablaCargandose.getRowCount(); i++) {
+                if (Integer.parseInt(modelitoTablaCargandose.getValueAt(i, 0).toString()) == (Integer.parseInt(txtIDproducto.getText()))) {
+                    cantidadAcumulada = cantidadAcumulada + Integer.parseInt(modelitoTablaCargandose.getValueAt(i, 5).toString());
+                }
+            }
+            System.out.println("cantidad acumuñada: " + cantidadAcumulada);
+            if (cantidadAcumulada > cantEnInventario) {
                 lblCantidadSobrepasa.setVisible(true);
                 return;
             } else {
@@ -787,15 +806,15 @@ public class JIFFactura extends javax.swing.JInternalFrame {
 
         printer.setOutSize(numeroLineas, 40);
 
-        printer.printTextLinCol(3, 4+centrarLabels((lblNombreComercialEmisor.getText()).length()), lblNombreComercialEmisor.getText());
+        printer.printTextLinCol(3, 4 + centrarLabels((lblNombreComercialEmisor.getText()).length()), lblNombreComercialEmisor.getText());
         printer.printTextLinCol(5, 12, lblDenominacionSocial.getText());
-        printer.printTextLinCol(7, 2+centrarLabels((lblDireccionEmisor.getText()).length()), lblDireccionEmisor.getText());
+        printer.printTextLinCol(7, 2 + centrarLabels((lblDireccionEmisor.getText()).length()), lblDireccionEmisor.getText());
 
-        printer.printTextLinCol(11, 4+centrarLabels((lblNitEMISOR.getText()).length() + 5), "Nit: " + lblNitEMISOR.getText());
-        printer.printTextLinCol(13, 6+centrarLabels((lblNumResoFactura.getText()).length() + (lblFechaResoFactura.getText()).length() + 11), "Resolucion " + lblNumResoFactura.getText() + " del " + lblFechaResoFactura.getText());      
-        printer.printTextLinCol(15, 7+centrarLabels((lblNumeroSerie.getText()).length()+(lblNumDEL.getText()).length()+(lblNumAL.getText()).length()+14), "Serie " + lblNumeroSerie.getText() + " de " + lblNumDEL.getText() + " al " + lblNumAL.getText());
-        printer.printTextLinCol(17, 4+centrarLabels(18), "Resolucion Sistema");
-        printer.printTextLinCol(19, 8+centrarLabels((lblNumResoSistema.getText()).length() + (lblFechaResoSistema.getText()).length() + 9), "Res. " + lblNumResoSistema.getText() + " de " + lblFechaResoSistema.getText());
+        printer.printTextLinCol(11, 4 + centrarLabels((lblNitEMISOR.getText()).length() + 5), "Nit: " + lblNitEMISOR.getText());
+        printer.printTextLinCol(13, 6 + centrarLabels((lblNumResoFactura.getText()).length() + (lblFechaResoFactura.getText()).length() + 11), "Resolucion " + lblNumResoFactura.getText() + " del " + lblFechaResoFactura.getText());
+        printer.printTextLinCol(15, 7 + centrarLabels((lblNumeroSerie.getText()).length() + (lblNumDEL.getText()).length() + (lblNumAL.getText()).length() + 14), "Serie " + lblNumeroSerie.getText() + " de " + lblNumDEL.getText() + " al " + lblNumAL.getText());
+        printer.printTextLinCol(17, 4 + centrarLabels(18), "Resolucion Sistema");
+        printer.printTextLinCol(19, 8 + centrarLabels((lblNumResoSistema.getText()).length() + (lblFechaResoSistema.getText()).length() + 9), "Res. " + lblNumResoSistema.getText() + " de " + lblFechaResoSistema.getText());
 
         printer.printTextLinCol(23, 4, "FACTURA SERIE " + lblNumSerieFactura.getText());
         printer.printTextLinCol(23, 23, "No. ");
@@ -825,7 +844,8 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         printer.printTextLinCol(50 + espaciosRecorridosDetalleVenta, 6, "                        GRACIAS POR PREFERIRNOS ");
 
         printer.toImageFile("factura.jpg");
-        File fileToPrint = new File("C:\\Users\\alexc\\Desktop\\ANALISIS 1\\PROYECTO\\Facturacion\\factura.jpg");
+        String path2 = System.getProperty("user.dir");
+        File fileToPrint = new File(path2 + "\\factura.jpg");
         Desktop.getDesktop().print(fileToPrint);
     }
 
@@ -840,7 +860,7 @@ public class JIFFactura extends javax.swing.JInternalFrame {
         TransaccionDAO trans = new TransaccionDAO();
         Transaccion t = new Transaccion(Integer.parseInt(lblNumeroDeFactura.getText()), Double.parseDouble(lblTotalCompra.getText()), lblNumSerieFactura.getText(), "Factura", "Emitido", Date.valueOf(lblFechaEmisionFactura.getText()));
         Factura f = new Factura(Integer.parseInt(lblNumeroDeFactura.getText()), Integer.parseInt(lblNumTransaccion.getText()), lblNitEMISOR.getText(), lblNitCliente.getText(), lblNumResoFactura.getText());
-        //trans.transaccionVentaFactura(t, f, modelitoTablaCargandose);
+        trans.transaccionVentaFactura(t, f, modelitoTablaCargandose);
 
         try {
             imprimirFactura();

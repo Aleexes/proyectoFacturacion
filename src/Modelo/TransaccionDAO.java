@@ -177,4 +177,87 @@ public class TransaccionDAO {
 
     }
 
+    public ArrayList<Object[]> transaccionesAsociadasAFacturas(Date fechaDESDE, Date fechaHASTA){
+        
+        Connection accesoDB = con.getConexion();
+        try {
+
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT F.FACTURA_NUMERO, T.TRANSACCION_FECHA, T.TRANSACCION_TIPODOCU, F.CLIENTE_NIT, F.FACTURA_NUM, R.RESOLUCION_NUMERO, T.TRANSACCION_MONTO FROM TRANSACCION T INNER JOIN FACTURA F ON F.TRANSACCION_NUMERO = T.TRANSACCION_NUMERO INNER JOIN RESOLUCION R ON F.RESOLUCION_NUMERO = R.RESOLUCION_NUMERO INNER JOIN CLIENTE C ON C.CLIENTE_NIT = F.CLIENTE_NIT WHERE T.TRANSACCION_FECHA>=? and T.TRANSACCION_FECHA<=?");
+            ps.setDate(1, fechaDESDE);
+            ps.setDate(2, fechaHASTA);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsm = rs.getMetaData();
+            ArrayList<Object[]> data = new ArrayList<>();
+
+            while (rs.next()) {
+                Object[] rows = new Object[rsm.getColumnCount()];
+                for (int i = 0; i < rows.length; i++) {
+                    rows[i] = rs.getObject(i + 1);
+                }
+                data.add(rows);
+            }
+            return data;
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+    }
+    
+    public ArrayList<Object[]> transaccionesAsociadasANotasDebito(Date fechaDESDE, Date fechaHASTA){
+        
+        Connection accesoDB = con.getConexion();
+        try {
+
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT N.NOTADEBITO_ID, T.TRANSACCION_FECHA, T.TRANSACCION_TIPODOCU, C.CLIENTE_NIT, N.NOTADEBITO_ID, R.RESOLUCION_NUMERO, T.TRANSACCION_MONTO FROM TRANSACCION T INNER JOIN NOTA_DEBITO N ON N.TRANSACCION_NUMERO = T.TRANSACCION_NUMERO INNER JOIN RESOLUCION R ON N.RESOLUCION_NUMERO = R.RESOLUCION_NUMERO INNER JOIN CLIENTE C ON C.CLIENTE_NIT = N.CLIENTE_NIT WHERE T.TRANSACCION_FECHA>=? and T.TRANSACCION_FECHA<=?");
+            ps.setDate(1, fechaDESDE);
+            ps.setDate(2, fechaHASTA);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsm = rs.getMetaData();
+            ArrayList<Object[]> data = new ArrayList<>();
+
+            while (rs.next()) {
+                Object[] rows = new Object[rsm.getColumnCount()];
+                for (int i = 0; i < rows.length; i++) {
+                    rows[i] = rs.getObject(i + 1);
+                }
+                data.add(rows);
+            }
+            return data;
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+    }
+    
+    public ArrayList<Object[]> transaccionesAsociadasANotasCredito(Date fechaDESDE, Date fechaHASTA){
+        
+        Connection accesoDB = con.getConexion();
+        try {
+
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT N.NOTACREDITO_ID, T.TRANSACCION_FECHA, T.TRANSACCION_TIPODOCU, C.CLIENTE_NIT, N.NOTACREDITO_ID, R.RESOLUCION_NUMERO, T.TRANSACCION_MONTO FROM TRANSACCION T INNER JOIN NOTA_CREDITO N ON N.TRANSACCION_NUMERO = T.TRANSACCION_NUMERO INNER JOIN RESOLUCION R ON N.RESOLUCION_NUMERO = R.RESOLUCION_NUMERO INNER JOIN CLIENTE C ON C.CLIENTE_NIT = N.CLIENTE_NIT WHERE T.TRANSACCION_FECHA>=? and T.TRANSACCION_FECHA<=?");
+            ps.setDate(1, fechaDESDE);
+            ps.setDate(2, fechaHASTA);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsm = rs.getMetaData();
+            ArrayList<Object[]> data = new ArrayList<>();
+
+            while (rs.next()) {
+                Object[] rows = new Object[rsm.getColumnCount()];
+                for (int i = 0; i < rows.length; i++) {
+                    rows[i] = rs.getObject(i + 1);
+                }
+                data.add(rows);
+            }
+            return data;
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+    }
+    
+    
+    
 }

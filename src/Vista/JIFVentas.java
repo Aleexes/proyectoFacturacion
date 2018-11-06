@@ -20,6 +20,7 @@ public class JIFVentas extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        btnVentasDetalles = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         btnVerPrecios = new javax.swing.JButton();
         lblFondo = new javax.swing.JLabel();
@@ -47,6 +48,16 @@ public class JIFVentas extends javax.swing.JInternalFrame {
         });
 
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        btnVentasDetalles.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/btnVentas.png"))); // NOI18N
+        btnVentasDetalles.setBorderPainted(false);
+        btnVentasDetalles.setContentAreaFilled(false);
+        btnVentasDetalles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVentasDetallesActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnVentasDetalles, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 90, 130, 120));
 
         jLabel4.setFont(new java.awt.Font("Taurus", 0, 48)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 0));
@@ -95,8 +106,20 @@ public class JIFVentas extends javax.swing.JInternalFrame {
         vistaP.toFront();
     }//GEN-LAST:event_btnVerPreciosActionPerformed
 
+    private void btnVentasDetallesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVentasDetallesActionPerformed
+        if (JIFDetallesVentas.controlVentanaDetallesVenta) { //SI YA ESTA ACTIVA UNA VENTANA, NO ABRIR OTRA
+            return;
+        }
+
+        JIFDetallesVentas vistaDV = new JIFDetallesVentas();
+        vistaDV.setLocation(((jDesktopPane1.getSize()).width - (vistaDV.getSize()).width) / 2, ((jDesktopPane1.getSize()).height - (vistaDV.getSize()).height) / 2);
+        jDesktopPane1.add(vistaDV);
+        vistaDV.toFront();
+    }//GEN-LAST:event_btnVentasDetallesActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnVentasDetalles;
     private javax.swing.JButton btnVerPrecios;
     public javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;

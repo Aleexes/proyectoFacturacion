@@ -181,4 +181,37 @@ public class VentaDAO {
         }
     }
 
+    public ArrayList<Object[]> mostrarDetalleVenta(int idFactura){
+        
+        Connection accesoDB = con.getConexion();
+        try {
+
+            PreparedStatement ps = accesoDB.prepareStatement("SELECT D.PRODUCTO_ID, P.PRODUCTO_NOMBRE, M.NOMBRE_MARCA, U.CLASIFICACIONUNIDAD, PR.PRESENTACION, D.DETALLE_CANTIDAD, D.DETALLE_PRECIOVENTA FROM DETALLE D INNER JOIN PRODUCTO P ON P.PRODUCTO_ID = D.PRODUCTO_ID INNER JOIN MARCA M ON P.MARCA_ID = M.MARCA_ID INNER JOIN UNIDAD U ON P.UNIDAD_ID = U.UNIDAD_ID INNER JOIN PRESENTACION PR ON P.PRESENTACION_ID = PR.PRESENTACION_ID INNER JOIN FACTURA F ON D.FACTURA_NUMERO = F.FACTURA_NUMERO WHERE F.FACTURA_NUMERO=?");
+            ps.setInt(1, idFactura);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData rsm = rs.getMetaData();
+            ArrayList<Object[]> data = new ArrayList<>();
+
+            while (rs.next()) {
+                Object[] rows = new Object[rsm.getColumnCount()];
+                for (int i = 0; i < rows.length; i++) {
+                    rows[i] = rs.getObject(i + 1);
+                }
+                data.add(rows);
+            }
+            return data;
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            return null;
+        }
+        
+        
+        
+        
+        
+        
+    }
+    
+    
 }

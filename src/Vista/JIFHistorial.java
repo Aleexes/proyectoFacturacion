@@ -185,7 +185,7 @@ public class JIFHistorial extends javax.swing.JInternalFrame {
                 btnCargarFechasActionPerformed(evt);
             }
         });
-        jPanel1.add(btnCargarFechas, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 510, 150, 50));
+        jPanel1.add(btnCargarFechas, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 500, 150, 50));
 
         tablaTransacciones.setBackground(new java.awt.Color(255, 255, 153));
         tablaTransacciones.setModel(new javax.swing.table.DefaultTableModel(
